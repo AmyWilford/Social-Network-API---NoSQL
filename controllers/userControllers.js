@@ -23,7 +23,7 @@ module.exports = {
   // Create a new user
   createUser(req, res) {
     User.create(req.body)
-      .then((user) => res.status(user))
+      .then((user) => res.json(user))
       .catch((err) => {
         console.log(err);
         return res.status(500).json(err);
@@ -42,7 +42,7 @@ module.exports = {
           ? res
               .status(404)
               .json({ message: "Invalid ID. Could not update user" })
-          : res.status(user)
+          : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
   },
