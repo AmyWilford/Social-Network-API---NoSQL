@@ -28,5 +28,8 @@ const reactionSchema = new Schema(
         id: false,
     }
 )
+reactionSchema.get(function(createdAt){
+    return `${this.createdAt.getMonth()+1}/ ${this.createdAt.getDate()}/ ${this.createdAt.getFullYear()}`
+})
 
 module.exports = reactionSchema;
