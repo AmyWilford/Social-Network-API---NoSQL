@@ -61,6 +61,21 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  createFriend(req, res) {},
-  deleteFriend(req, res) {},
+
+//   Create a friend added to a user
+  createFriend(req, res) {
+    User.findOneAndUpdate(
+        {_id:req.params.userId}, 
+        {$addToSet: {friends: req.params.friendId}}, 
+    )
+    .then((user)=>
+    !user ? res.status(404).json({message:"Invalid ID. User not found"})
+    : res.json(user)
+    )
+    .catch((err)=> res.status(500).json(err))
+  },
+//   Delete a friend
+  deleteFriend(req, res) {
+
+  },
 };

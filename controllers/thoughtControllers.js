@@ -22,7 +22,16 @@ module.exports = {
   },
   createThought(req, res) {
     Thought.create(req.body)
-      .then((thought) => res.json(thought))
+      .then((thought) => {
+        return User.findOneAndUpdate(
+          { username: req.body.username },
+          { $push: { thoughts: thought._id } }
+        );
+      })
+      .then((userData) => {
+        console.log(userData);
+        res.json(userData);
+      })
       .catch((err) => {
         console.log(err);
         return res.status(500).json(err);
@@ -30,18 +39,18 @@ module.exports = {
   },
   updateThought(req, res) {
     Thought.findOneAndUpdate(
-        { _id: req.params.thoughtId },
-        { $set: req.body },
-        { runValidators: true, new: true }
+      { _id: req.params.thoughtId },
+      { $set: req.body },
+      { runValidators: true, new: true }
+    )
+      .then((thought) =>
+        !thought
+          ? res
+              .status(404)
+              .json({ message: "Invalid ID. Could not update your thought" })
+          : res.json(thought)
       )
-        .then((thought) =>
-          !thought
-            ? res
-                .status(404)
-                .json({ message: "Invalid ID. Could not update your thought" })
-            : res.json(thought)
-        )
-        .catch((err) => res.status(500).json(err));
+      .catch((err) => res.status(500).json(err));
   },
   deleteThought(req, res) {
     Thought.deleteOne({ _id: req.params.thoughtId })
@@ -50,11 +59,44 @@ module.exports = {
           ? res
               .status(404)
               .json({ message: "Invalid ID. Could not delete your thought" })
-          : res.json(thought)
+          : res.json({ message: "Thought Deleted!" })
       )
-      .then(() => res.json({ message: "Thought Deleted!" }))
+      //   .then(() => res.json({ message: "Thought Deleted!" }))
       .catch((err) => res.status(500).json(err));
   },
-  createReaction(req, res) {},
-  deleteReaction(req, res) {},
+  //  >>> HELP <<<
+  // Create a reaction to a thought
+  createReaction(req, res) {
+    console.log("========= ADDING A REACTION ============");
+    console.log(req.params)
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $addToSet: { reactions: req.body } },
+      { runValidators: true, new: true }
+    )
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({ message: "Invalid ID. No thought found" })
+          : res.json(thought)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+
+  //    >>> HELP <<<
+  //   Delete a reaction
+  deleteReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
+    )
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({
+              message: "Invalid reaction ID. Could not remove reaction",
+            })
+          : res.json(thought)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
 };
