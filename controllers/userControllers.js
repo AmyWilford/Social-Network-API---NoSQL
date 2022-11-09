@@ -17,7 +17,7 @@ module.exports = {
       .select("-__v")
       .then((user) =>
         !user
-          ? res.status(404).json({ message: "Invalid Id. Could not find user" })
+          ? res.status(404).json({ message: "User could not be found" })
           : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
@@ -43,7 +43,7 @@ module.exports = {
         !user
           ? res
               .status(404)
-              .json({ message: "Invalid ID. Could not update user" })
+              .json({ message: "User could not be found - nothing updated" })
           : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
@@ -56,10 +56,10 @@ module.exports = {
         !user
           ? res
               .status(404)
-              .json({ message: "Invalid ID. Could not delete User" })
+              .json({ message: "User could not be found - nothing deleted" })
           : Thought.deleteMany({ _id: { $in: user.thoughts } })
       )
-      .then(() => res.json({ message: "User and Thoughts deleted!" }))
+      .then(() => res.json({ message: "User and their thoughts have been deleted!" }))
       .catch((err) => res.status(500).json(err));
   },
 
@@ -71,7 +71,7 @@ module.exports = {
     )
       .then((user) =>
         !user
-          ? res.status(404).json({ message: "Invalid ID. User not found" })
+          ? res.status(404).json({ message: "Something went wrong - user could not be found" })
           : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
@@ -87,7 +87,7 @@ module.exports = {
       .then((user) => {
         console.log(user);
         !user
-          ? res.status(404).json({ message: "No user found with that id" })
+          ? res.status(404).json({ message: "User could not be found" })
           : res.json(user);
       })
       .catch((err) => {

@@ -30,7 +30,8 @@ module.exports = {
       .then((thought) => {
         return User.findOneAndUpdate(
           { username: req.body.username },
-          { $push: { thoughts: thought._id } }
+          { $push: { thoughts: thought._id } }, 
+          {new: true}
         );
       })
       .then((userData) => {
@@ -60,15 +61,24 @@ module.exports = {
   },
   //   Delete a thought by its id
   deleteThought(req, res) {
-    Thought.deleteOne({ _id: req.params.thoughtId })
-      .then((thought) =>
+    Thought.findOneAndRemove({ _id: req.params.thoughtId })
+      .then((thought) => 
         !thought
-          ? res
-              .status(404)
-              .json({ message: "Invalid ID. Could not delete your thought" })
-          : res.json({ message: "Thought Deleted!" })
+        ? res.status(404).json({ message: "Thought could not be found - nothing deleted" })
+        : User.findOneAndUpdate(
+            { username: thought.username },
+            { $pull: { thoughts: thought._id } }, 
+            {new: true}
+          )
+          )
+      .then((user)=> 
+      !user ? res.status(404).json({message: 'Your thought was deleted - but an associated user could not be found'})
+      :res.json({ message: 'Thought has been deleted - and user record updated'})
       )
-      .catch((err) => res.status(500).json(err));
+      .catch((err)=> {
+        console.log(err);
+        res.status(500).json(err);
+      })      
   },
   // Create a reaction to a thought - find the linked thought and add the new reaction to the thought document
   createReaction(req, res) {
@@ -80,7 +90,7 @@ module.exports = {
     )
       .then((thought) =>
         !thought
-          ? res.status(404).json({ message: "Invalid ID. No thought found" })
+          ? res.status(404).json({ message: "Thought could not be found - your reacting to nothing" })
           : res.json(thought)
       )
       .catch((err) => res.status(500).json(err));
@@ -91,13 +101,13 @@ module.exports = {
   deleteReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $pull: { reactions: { _id: req.params.reactionId } } },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
       { runValidators: true, new: true }
     )
       .then((thought) =>
         !thought
           ? res.status(404).json({
-              message: "Invalid reaction ID. Could not remove reaction",
+              message: "Your reaction could not be find - nothing deleted",
             })
           : res.json(thought)
       )
