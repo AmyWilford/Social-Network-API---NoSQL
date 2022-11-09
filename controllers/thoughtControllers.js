@@ -1,13 +1,17 @@
-const { ObjectId } = require("mongoose").Types;
+// const { ObjectId } = require("mongoose").Types;
+// Import User and Thought Models
 const { Thought, User } = require("../models");
 
+// Export all functions to be used within routes
 module.exports = {
+    // Get all thoughts
   getThoughts(req, res) {
     Thought.find()
       .select("-__v")
       .then((thoughts) => res.json(thoughts))
       .catch((err) => res.status(500).json(err));
   },
+//   Get a single thought by id
   getSingleThought(req, res) {
     Thought.findOne({ _id: req.params.thoughtId })
       .select("-__v")
@@ -20,6 +24,7 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
+//   Create a new thought - find thought user and push new thought to thoughts
   createThought(req, res) {
     Thought.create(req.body)
       .then((thought) => {
@@ -37,6 +42,7 @@ module.exports = {
         return res.status(500).json(err);
       });
   },
+//   Update a thought by its id
   updateThought(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -52,6 +58,7 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
+//   Delete a thought by its id
   deleteThought(req, res) {
     Thought.deleteOne({ _id: req.params.thoughtId })
       .then((thought) =>
@@ -61,13 +68,10 @@ module.exports = {
               .json({ message: "Invalid ID. Could not delete your thought" })
           : res.json({ message: "Thought Deleted!" })
       )
-      //   .then(() => res.json({ message: "Thought Deleted!" }))
       .catch((err) => res.status(500).json(err));
   },
-  //  >>> HELP <<<
-  // Create a reaction to a thought
+  // Create a reaction to a thought - find the linked thought and add the new reaction to the thought document
   createReaction(req, res) {
-    console.log("========= ADDING A REACTION ============");
     console.log(req.params)
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -82,8 +86,8 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  //    >>> HELP <<<
   //   Delete a reaction
+//   Find the thought associated with the thought using its id - and pull the reaction by its id
   deleteReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },

@@ -1,6 +1,8 @@
-const { ObjectId } = require("mongoose").Types;
+// const { ObjectId } = require("mongoose").Types;
+// Import User and Thought Models
 const { User, Thought } = require("../models");
 
+// Export all functions to be used within routes
 module.exports = {
   // Get all users
   getUsers(req, res) {
@@ -30,7 +32,7 @@ module.exports = {
       });
   },
 
-  // Update a user by its id
+  // Update a user by its id and run schemaValidations on information
   updateUser(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
@@ -47,7 +49,7 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  // Delete a user by its id
+  // Delete a user by its id and all linked thoughts
   deleteUser(req, res) {
     User.findOneAndDelete({ _id: req.params.userId })
       .then((user) =>
@@ -62,7 +64,7 @@ module.exports = {
   },
 
 
-//   Create a friend added to a user
+//   Add a friend to a user - locate a friend by their _id - and add the friend using their _id
   createFriend(req, res) {
     User.findOneAndUpdate(
         {_id:req.params.userId}, 
@@ -76,6 +78,14 @@ module.exports = {
   },
 //   Delete a friend
   deleteFriend(req, res) {
-
+    User.findOneAndUpdate(
+      {_id: req.params.userId}, 
+      {$pull: {friends: {friendId: req.params.friendId}}}
+    )
+    .then((user)=>
+      !user ? res.status(404).json({message: 'Could not a delete your friend'})
+      : res.json(user)
+    )
+    .catch((err)=> res.status(500).json(err));
   },
 };

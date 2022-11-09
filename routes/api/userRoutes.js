@@ -1,25 +1,28 @@
+// Import express router
 const router = require("express").Router();
 
+// Require controller functions (imported from userControllers)
 const {
-  getUsers, //get all users
-  getSingleUser, //get single user by its _id and populated thought and friend data
-  createUser, // post a new user
-  updateUser, //update a user by its _id
-  deleteUser, //remove a user by its _id
-  createFriend, // add a new friend to a user's friend list
-  deleteFriend, //remove a friend from a user's friend list
+  getUsers,
+  getSingleUser,
+  createUser, 
+  updateUser, 
+  deleteUser, 
+  createFriend, 
+  deleteFriend, 
 } = require("../../controllers/userControllers.js");
 
-//Endpoint: /api/users
+//Set Endpoint: /api/users | clarify CRUD operations and linked functions for endpoint
 router.route("/").get(getUsers).post(createUser);
 
-//Endpoint: /api/users/:userId
+//Set Endpoint: /api/users/:userId | clarify CRUD operations and linked functions for endpoint
 router.route("/:userId").get(getSingleUser).put(updateUser).delete(deleteUser);
 
-//Endpoint: api/users/:userId/friends/:friendId
+//Set Endpoint: api/users/:userId/friends/:friendId |clarify CRUD operations and linked functions for endpoint
 router
   .route("/:userId/friends/:friendId")
   .post(createFriend)
   .delete(deleteFriend);
-  
+
+//   Export Router
 module.exports = router;
