@@ -21,6 +21,6 @@ app.use(routes);
 //Once db is openened - app is listening on declared port
 db.once('open', () => {
   app.listen(PORT, () => {
-    console.log(`API server for ${socialNetworkBackend} running on port ${PORT}!`);
+    console.log(`API server running on port ${PORT}!`);
   });
 });
