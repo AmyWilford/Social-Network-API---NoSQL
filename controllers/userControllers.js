@@ -1,4 +1,4 @@
-// const { ObjectId } = require("mongoose").Types;
+const { ObjectId } = require("mongoose").Types;
 // Import User and Thought Models
 const { User, Thought } = require("../models");
 
@@ -63,29 +63,36 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-
-//   Add a friend to a user - locate a friend by their _id - and add the friend using their _id
+  //   Add a friend to a user - locate a friend by their _id - and add the friend using their _id
   createFriend(req, res) {
     User.findOneAndUpdate(
-        {_id:req.params.userId}, 
-        {$addToSet: {friends: req.params.friendId}}, 
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.params.friendId } }
     )
-    .then((user)=>
-    !user ? res.status(404).json({message:"Invalid ID. User not found"})
-    : res.json(user)
-    )
-    .catch((err)=> res.status(500).json(err))
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: "Invalid ID. User not found" })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
   },
-//   Delete a friend
+  
+  // Delete friend - locate a user by their _id - and remove the specified friend using the param specified id
   deleteFriend(req, res) {
     User.findOneAndUpdate(
-      {_id: req.params.userId}, 
-      {$pull: {friends: {friendId: req.params.friendId}}}
+      { _id: req.params.userId },
+      { $pull: { friends: req.params.friendId } },
+      { runValidators: true, new: true }
     )
-    .then((user)=>
-      !user ? res.status(404).json({message: 'Could not a delete your friend'})
-      : res.json(user)
-    )
-    .catch((err)=> res.status(500).json(err));
+      .then((user) => {
+        console.log(user);
+        !user
+          ? res.status(404).json({ message: "No user found with that id" })
+          : res.json(user);
+      })
+      .catch((err) => {
+        console.log(err)
+        res.status(500).json(err)
+      })
   },
 };
